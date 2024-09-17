@@ -19,15 +19,15 @@ router.get('/:id', (req, res) => {
   
 // to-do: add post, put, and delete routers
 router.post('/create', (req, res) => {
-  res.send('Add contact');
+  res.send('Add a new contact');
 });
 
-router.put('/update', (req, res) => {
-  res.send('Update contact');
+router.put('/update/:id', (req, res) => {
+  res.send('Update contact by id ' + id);
 });
 
-router.delete('/delete', (req, res) => {
-  res.send('Delete contact');
+router.delete('/delete/:id', (req, res) => {
+  res.send('Delete contact by id ' + id);
 })
 
 export default router;
