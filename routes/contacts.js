@@ -9,7 +9,7 @@ const router = express.Router();
 //prisma setup
 const prisma = new PrismaClient({
    log: ['query', 'info', 'warn', 'error'],
-  });
+  }); //log out the error
   
 
 //Multer setup
@@ -27,11 +27,12 @@ const storage = multer.diskStorage({
   const upload = multer({ storage: storage });
 
 
-
-//routes
-router.get('/', (req, res) => {
-  res.send('Contacts route');
-});
+//
+// Routes
+//
+// router.get('/', (req, res) => {
+//   res.send('Contacts route');
+// });
 
 // Get all contacts
 router.get('/all', async(req, res) => {
@@ -43,25 +44,45 @@ router.get('/all', async(req, res) => {
 // Get a contact by id
 router.get('/get/:id', async(req, res) => {
   const id = req.params.id;
+  
+  //validation: id is a number
+  if(isNaN(id)){
+    res.status(400).json({ message: 'Invalid contact ID'});
+    return;
+  }
 
   //By ID
   const contact = await prisma.contact.findUnique({
+
+    //where clause
     where:{
-      id: parseInt(id),
+      id: parseInt(id),  
     },
   });
 
-  res.json(contact);
+  if(contact){
+    res.json(contact);
+  }else{
+    res.status(404).json({message: 'Contact not found.'});
+  }
+  
 });
   
+
+//Add a new contact
 // add post(with multer)
 router.post('/create', upload.single('image'), async (req, res) => {
 
   const filename = req.file ? req.file.filename : null;
   const { firstName, lastName, email, phone, title } = req.body;
+  
 
-
-  //model Contact {
+  if (!firstName || !lastName || !email || !phone){
+    // to-do: delete uploaded file
+    res.status(400).json({ message: 'Required fields must have a value.'});
+    return;
+  }
+ 
 
   const contact = await prisma.contact.create({
     data: {
@@ -78,14 +99,42 @@ router.post('/create', upload.single('image'), async (req, res) => {
   });
   
 
+//Update a contact by id (with multer)
+router.put('/update/:id', upload.single('image'),(req, res) => {//make sure the name is same in both places
+  const id = req.params.id;  //should have the data that need to update, like create function
+  
+  // capture the remaining inputs
 
-router.put('/update/:id', upload.single('image'),(req, res) => {
-  const id = req.params.id;
-  res.send('Update contact by id ' + id);
+  // validate the inputs
+
+  // get the contacts by id. return 404 if not found.
+
+  // if image file is uploaded: get the filename to save in db. delete the old image file. set the filename to new filename
+
+  // if image file NOT uploaded: when updating record with prisma. Set the filename to oldfilename
+
+  // update record in the db. (ensuring filename is new or old name)
+
+  res.send('Update contact by id ' + id);   // where clause and data structure
 });
 
+
+//Delete a contact by id
 router.delete('/delete/:id', (req, res) => {
   const id = req.params.id;
+
+ 
+
+  // validate the input
+
+  // get contact by id. return 404 if not found.
+
+  // delete the image file.
+
+  // delete the contact in db.
+
+
+
   res.send('Delete contact by id ' + id);
 })
 
